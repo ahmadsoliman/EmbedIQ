@@ -2,12 +2,13 @@
 
 ## Current Work Focus
 
-The project is now in the initial implementation phase after completing the setup and scaffolding. We've established the basic structure and components for both backend and frontend.
+The project is now in the initial implementation phase after completing the setup and scaffolding. We've established the basic structure and components for both backend and frontend. We are currently implementing RAG functionality with LightRAG.
 
 1. **Project Structure**: Created the initial repository structure following the defined patterns.
 2. **Backend API**: Implemented the basic FastAPI application with core endpoints.
 3. **Frontend Structure**: Set up the React application with essential pages and components.
 4. **Development Environment**: Configured Docker and Docker Compose for local development.
+5. **LightRAG Integration**: Implementing LightRAG as the RAG framework with PostgreSQL storage.
 
 ## Recent Changes
 
@@ -26,6 +27,11 @@ The project is now in the initial implementation phase after completing the setu
   - Layout with header and footer
   - Home, Query, Docs, and NotFound pages
   - Material-UI theming
+- Implemented LightRAG integration:
+  - Created LightRAGService with retry logic
+  - Added endpoints for text ingestion and RAG queries
+  - Fixed SQLAlchemy naming conflicts with metadata
+  - Added database initialization scripts
 
 ## Active Decisions
 
@@ -35,6 +41,7 @@ The project is now in the initial implementation phase after completing the setu
 - **API Extensions**: Additional API functionality beyond the core endpoints.
 - **Testing Strategy**: Comprehensive testing approach for both backend and frontend.
 - **CI/CD Pipeline**: Setting up automated testing and deployment.
+- **PostgreSQL Image Selection**: Finding a PostgreSQL image with pgvector and Apache AGE that works well on ARM64 architecture (Apple Silicon).
 
 ### Recently Decided
 
@@ -42,15 +49,17 @@ The project is now in the initial implementation phase after completing the setu
 - Implemented a containerized approach with Docker Compose
 - Structured the backend with clear separation of concerns (routers, services, models)
 - Used pgvector for PostgreSQL vector support
+- Selected LightRAG as our RAG framework for its flexibility and integration with PostgreSQL
 
 ## Next Steps
 
 ### Immediate Next Steps
 
-1. **Database Integration**: Complete the integration with PostgreSQL and pgvector
-2. **Authentication**: Implement authentication and authorization
-3. **Document Processing**: Implement the complete document processing pipeline
-4. **Frontend API Integration**: Connect the frontend to the backend API
+1. **Database Image Compatibility**: Replace the current PostgreSQL Docker image with one that works properly on ARM64 architecture (Apple Silicon Macs)
+2. **Complete LightRAG Integration**: Finish debugging and testing LightRAG with PostgreSQL
+3. **Authentication**: Implement authentication and authorization
+4. **Document Processing**: Implement the complete document processing pipeline
+5. **Frontend API Integration**: Connect the frontend to the backend API
 
 ### Short-term Goals
 
@@ -68,10 +77,11 @@ The project is now in the initial implementation phase after completing the setu
 
 ## Current Challenges
 
-1. **LLM Integration**: Need to finalize the approach for LLM integration
-2. **Vector Database Performance**: Need to evaluate PostgreSQL with pgvector in real-world scenarios
-3. **Frontend-Backend Communication**: Ensuring smooth communication between frontend and API
-4. **Docker Compose Development**: Optimizing the development experience with Docker Compose
+1. **PostgreSQL + pgvector on ARM64**: We're experiencing Docker image compatibility issues with the PostgreSQL image that includes pgvector and Apache AGE extensions on Apple Silicon (ARM64) architecture. The current image is causing PostgreSQL to crash when creating extensions.
+2. **LLM Integration**: Need to finalize the approach for LLM integration
+3. **Vector Database Performance**: Need to evaluate PostgreSQL with pgvector in real-world scenarios
+4. **Frontend-Backend Communication**: Ensuring smooth communication between frontend and API
+5. **Docker Compose Development**: Optimizing the development experience with Docker Compose
 
 ## Team Context
 
@@ -87,6 +97,7 @@ The development plan includes:
 - Project Documentation: Located in the memory-bank directory
 - API Endpoints: Defined in the API routers
 - Frontend Routes: Defined in the App.jsx component
+- LightRAG Documentation: https://github.com/HKUDS/LightRAG
 
 ## Communication Protocols
 

@@ -26,7 +26,7 @@ class Document(BaseModel):
     content = Column(Text, nullable=False)
 
     # Metadata (file type, creation date, etc.)
-    metadata = Column(JSON, nullable=True)
+    doc_metadata = Column(JSON, nullable=True)
 
     # Relationship to embedding chunks
     chunks = relationship(
@@ -56,7 +56,7 @@ class DocumentChunk(BaseModel):
     embedding = Column(LargeBinary, nullable=True)
 
     # Metadata about the chunk (e.g., page number, section)
-    metadata = Column(JSON, nullable=True)
+    chunk_metadata = Column(JSON, nullable=True)
 
     def __repr__(self):
         return f"<DocumentChunk(id={self.id}, document_id={self.document_id}, chunk_index={self.chunk_index})>"

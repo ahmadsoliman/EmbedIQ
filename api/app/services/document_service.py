@@ -16,7 +16,7 @@ def create_document(db: Session, document: DocumentCreate) -> Document:
         source=document.source,
         author=document.author,
         content=document.content,
-        metadata=document.metadata or {},
+        doc_metadata=document.metadata or {},
     )
 
     # Add to database
@@ -65,7 +65,7 @@ def create_document_chunk(db: Session, chunk: DocumentChunkCreate) -> DocumentCh
         document_id=chunk.document_id,
         chunk_index=chunk.chunk_index,
         chunk_text=chunk.chunk_text,
-        metadata=chunk.metadata or {},
+        chunk_metadata=chunk.metadata or {},
     )
 
     db.add(db_chunk)

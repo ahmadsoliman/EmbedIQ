@@ -2,7 +2,7 @@
 
 ## Project Status: Initial Implementation Phase
 
-The EmbedIQ project has completed the initial planning phase and entered the implementation phase. We have set up the core project structure and scaffolding for both backend and frontend components.
+The EmbedIQ project has completed the initial planning phase and entered the implementation phase. We have set up the core project structure and scaffolding for both backend and frontend components and are now implementing RAG functionality with LightRAG.
 
 ## What Works
 
@@ -18,10 +18,13 @@ The EmbedIQ project has completed the initial planning phase and entered the imp
 - ✅ Data models and schemas created
 - ✅ React frontend structure implemented with Material-UI
 - ✅ Frontend pages and navigation established
+- ✅ LightRAG service class with PostgreSQL integration created
+- ✅ API endpoints for LightRAG text ingestion and query implemented
 
 ## What's in Progress
 
-- 🔄 PostgreSQL integration with vector extensions
+- 🔄 PostgreSQL image compatibility with ARM64 architecture (Apple Silicon)
+- 🔄 LightRAG complete integration and testing
 - 🔄 Document processing pipeline
 - 🔄 Frontend-API integration
 - 🔄 Authentication system
@@ -44,6 +47,9 @@ The EmbedIQ project has completed the initial planning phase and entered the imp
 - ⬜ Core Processing
 
   - 🔄 LightRAG integration
+    - ✅ LightRAG service implementation
+    - ✅ PostgreSQL storage configuration
+    - 🔄 Debugging and testing on ARM64 architecture
   - 🔄 Document ingestion pipeline
   - ⬜ Embedding generation
   - ⬜ Vector search implementation
@@ -55,6 +61,7 @@ The EmbedIQ project has completed the initial planning phase and entered the imp
   - ✅ Database models
   - 🔄 Migration scripts
   - 🔄 Data access layer
+  - 🔄 PostgreSQL image ARM64 compatibility
 
 - ⬜ Frontend
 
@@ -68,6 +75,7 @@ The EmbedIQ project has completed the initial planning phase and entered the imp
 - ⬜ DevOps
   - ✅ Docker configuration
   - ✅ Docker Compose for local development
+  - 🔄 Docker image compatibility with ARM64 architecture
   - ⬜ CI/CD pipeline setup
   - ⬜ Testing infrastructure
 
@@ -105,27 +113,37 @@ The EmbedIQ project has completed the initial planning phase and entered the imp
 3. ✅ Configure development environment with Docker Compose
 4. ✅ Create skeleton applications for backend and frontend
 5. 🔄 Implement database integration
+   - ✅ Basic SQLAlchemy models
+   - ✅ Database connection
+   - 🔄 Fix PostgreSQL image compatibility with ARM64
 6. 🔄 Connect frontend to API
 7. 🔄 Implement document processing
+8. 🔄 Integrate LightRAG for RAG capabilities
+   - ✅ Service implementation
+   - ✅ API endpoints
+   - 🔄 Testing and debugging
 
 ## Known Issues and Risks
 
 ### Technical Issues
 
+- PostgreSQL Docker image with pgvector and Apache AGE crashes on ARM64 architecture (Apple Silicon)
+- SQLAlchemy naming conflicts with 'metadata' attribute requiring renaming in models
 - Mock implementations in place of real embedding generation and LLM integration
 - File upload and document processing not yet implemented
 - Authentication system not yet implemented
 
 ### Potential Risks
 
-1. **LLM Integration**: Potential challenges with integrating and optimizing LLM providers
-2. **Vector Database Performance**: Need to ensure PostgreSQL with pgvector meets performance requirements
-3. **LLM API Costs**: Need to manage costs associated with LLM API usage
-4. **Scaling Challenges**: May face challenges when scaling to handle large document collections
+1. **Docker Image Compatibility**: PostgreSQL with vector extensions may have ongoing compatibility issues with ARM64 architecture
+2. **LLM Integration**: Potential challenges with integrating and optimizing LLM providers
+3. **Vector Database Performance**: Need to ensure PostgreSQL with pgvector meets performance requirements
+4. **LLM API Costs**: Need to manage costs associated with LLM API usage
+5. **Scaling Challenges**: May face challenges when scaling to handle large document collections
 
 ## Next Evaluation Point
 
-After completing the database integration and connecting the frontend to the API, we will evaluate progress and adjust the plan as needed.
+After resolving the PostgreSQL ARM64 compatibility issues and completing the LightRAG integration, we will evaluate progress and adjust the plan as needed.
 
 ## Metrics to Track
 
@@ -137,6 +155,8 @@ After completing the database integration and connecting the frontend to the API
 
 ## Open Questions
 
+- What PostgreSQL Docker image is most compatible with ARM64 architecture while supporting pgvector and Apache AGE?
+- Should we explore alternative vector database options if PostgreSQL compatibility issues persist?
 - Should we implement user management in the initial MVP or defer to a later phase?
 - How should we handle embedding model updates and reprocessing?
 - What level of caching should we implement for performance optimization?

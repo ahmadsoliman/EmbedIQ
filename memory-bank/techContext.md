@@ -17,7 +17,7 @@
 - **Framework**: React 18+
 - **Build Tool**: Vite
 - **State Management**: React Context API and/or Redux
-- **UI Components**: Either Material-UI or Tailwind CSS
+- **UI Components**: Material-UI
 - **API Client**: Axios or React Query
 - **Testing**: Jest, React Testing Library
 
@@ -25,6 +25,7 @@
 
 - **Primary Database**: PostgreSQL 14+
 - **Vector Extensions**: pgvector for embedding storage
+- **Graph Storage**: Apache AGE for graph relationships
 - **Migrations**: Alembic
 - **Connection Pooling**: PgBouncer (optional for production)
 
@@ -91,6 +92,33 @@
    - Access frontend at http://localhost:3000
    - API documentation at http://localhost:8000/docs
 
+### LightRAG Integration
+
+1. **Component Structure**:
+
+   - `LightRAGService` singleton class for managing LightRAG instances
+   - PostgreSQL storage for vectors, knowledge graph, and key-value data
+   - API endpoints for text ingestion and querying
+
+2. **Storage Configuration**:
+
+   - Vector storage: PostgreSQL with pgvector
+   - Graph storage: PostgreSQL with Apache AGE
+   - Key-value storage: PostgreSQL
+
+3. **Environment Variables**:
+
+   - `DATABASE_URL`: PostgreSQL connection string
+   - `LIGHTRAG_WORKING_DIR`: Directory for LightRAG data
+   - `AGE_GRAPH_NAME`: Name for the Apache AGE graph
+
+4. **Query Modes**:
+   - `naive`: Basic search without advanced techniques
+   - `local`: Context-dependent information retrieval
+   - `global`: Utilizing global knowledge graph
+   - `hybrid`: Combining local and global retrieval
+   - `mix`: Integrating knowledge graph and vector retrieval
+
 ### Database Migration Workflow
 
 1. Create models in SQLAlchemy
@@ -149,6 +177,7 @@
 - **Mobile Responsiveness**: Frontend must work on devices down to 320px width
 - **API Versioning**: APIs must be versioned to ensure backward compatibility
 - **Internationalization**: UI must support future internationalization
+- **Architecture Support**: Support for both x86_64 and ARM64 (Apple Silicon) architectures
 
 ## Dependencies
 
@@ -162,8 +191,14 @@
 ### Internal Dependencies
 
 - **LightRAG**: Core framework for RAG capabilities
-- **PostgreSQL**: Primary data store with vector extensions
+- **PostgreSQL**: Primary data store with vector extensions (pgvector) and graph extensions (Apache AGE)
 - **Redis**: Optional for caching and rate limiting
+
+### Known Issues
+
+- **PostgreSQL Docker Image on ARM64**: The current PostgreSQL Docker image with pgvector and Apache AGE extensions crashes when attempting to create extensions on ARM64 architecture (Apple Silicon). We need to find or create a more compatible image.
+- **SQLAlchemy Naming Conflict**: The 'metadata' attribute in SQLAlchemy models conflicts with SQLAlchemy's internal metadata usage, requiring renaming in our models.
+- **LightRAG on Apple Silicon**: Need to ensure compatibility with ARM64 architecture for all components.
 
 ### Licensing Considerations
 
@@ -185,3 +220,4 @@
 - Code quality tools must be integrated into CI pipeline
 - Performance benchmarks must be established and monitored
 - Documentation must be kept updated with code changes
+- ARM64 architecture compatibility must be regularly tested and maintained
