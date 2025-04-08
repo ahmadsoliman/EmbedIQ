@@ -1,0 +1,15 @@
+fastapi>=0.103.0,<0.104.0
+uvicorn>=0.23.0,<0.24.0
+pydantic>=2.3.0,<3.0.0
+sqlalchemy>=2.0.0,<3.0.0
+alembic>=1.12.0,<2.0.0
+python-jose>=3.3.0,<4.0.0
+passlib>=1.7.4,<2.0.0
+python-multipart>=0.0.6,<0.1.0
+psycopg2-binary>=2.9.7,<3.0.0
+loguru>=0.7.0,<0.8.0
+httpx>=0.24.1,<0.25.0
+# LightRAG framework would be added here once available
+# For now, we'll use basic embeddings libraries
+sentence-transformers>=2.2.2,<3.0.0
+openai>=1.1.0,<2.0.0 

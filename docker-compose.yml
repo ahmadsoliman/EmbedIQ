@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Frontend service - React application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3000:80'
+    depends_on:
+      - api
+    networks:
+      - embediq-network
+    environment:
+      - NODE_ENV=development
+
+  # API service - FastAPI application
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    networks:
+      - embediq-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/embediq
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DEFAULT_LLM_PROVIDER=${DEFAULT_LLM_PROVIDER:-openai}
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./api:/app
+    command:
+      [
+        'uvicorn',
+        'app.main:app',
+        '--host',
+        '0.0.0.0',
+        '--port',
+        '8000',
+        '--reload',
+      ]
+
+  # Database service - PostgreSQL with pgvector
+  db:
+    image: ankane/pgvector:latest
+    ports:
+      - '5432:5432'
+    networks:
+      - embediq-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=embediq
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # PgAdmin for database management (optional, development only)
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - '5050:80'
+    networks:
+      - embediq-network
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - db
+
+networks:
+  embediq-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
