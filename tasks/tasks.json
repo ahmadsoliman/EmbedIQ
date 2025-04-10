@@ -1,0 +1,169 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup Docker Development Environment",
+      "description": "Configure Docker and Docker Compose for local development with containers for all required services.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create Dockerfiles for each service: Frontend, API, and PostgreSQL with extensions. Set up Docker Compose configuration that defines service relationships, network configuration, and volume mounts. Ensure compatibility with both ARM64 and x86_64 architectures by testing alternative PostgreSQL images or building custom images if needed. Include environment variable configuration and setup scripts for initial development.",
+      "testStrategy": "Verify all containers start successfully with docker-compose up. Test cross-container communication. Confirm PostgreSQL extensions (pgvector, Apache AGE) are properly installed and accessible. Validate development workflow on both ARM64 and x86_64 architectures.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Service-Specific Dockerfiles",
+          "description": "Create optimized Dockerfiles for each service (Frontend, API, and PostgreSQL) that follow best practices for multi-stage builds, minimal base images, and architecture compatibility.",
+          "dependencies": [],
+          "details": "1. Create Frontend Dockerfile:\n   - Use multi-stage build with Node.js\n   - First stage for building with `node:16` as base\n   - Second stage with `node:16-alpine` for runtime\n   - Include non-root user configuration\n   - Add proper COPY commands to optimize caching\n   - Set appropriate CMD for development\n\n2. Create API Dockerfile:\n   - Use appropriate base image for your API technology\n   - Implement multi-stage build if applicable\n   - Include health check configuration\n   - Set proper working directory and file permissions\n   - Add development dependencies for local use\n\n3. Create PostgreSQL Dockerfile:\n   - Base on official postgres image\n   - Add required extensions\n   - Include configuration for both ARM64 and x86_64 architectures\n   - Add initialization scripts in /docker-entrypoint-initdb.d/\n   - Configure locale and encoding settings\n\n4. Testing approach:\n   - Verify each Dockerfile builds successfully\n   - Test individual containers by running them with docker run\n   - Verify services start correctly\n   - Check multi-architecture compatibility using docker buildx",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 2,
+          "title": "Configure Docker Compose for Local Development",
+          "description": "Create a docker-compose.yml file that defines service relationships, networking, and volume configuration for the development environment.",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Create base docker-compose.yml file:\n   - Define all three services (frontend, api, postgres)\n   - Configure appropriate port mappings (e.g., 3000:3000 for frontend)\n   - Set up service dependencies with depends_on\n   - Configure named volumes for database persistence\n   - Set up shared networks between services\n   - Add healthcheck configurations for each service\n\n2. Configure volume mounts for development:\n   - Mount local code directories to container working directories\n   - Set up PostgreSQL data volume\n   - Configure any additional volumes needed for caching or logs\n\n3. Set up environment variables:\n   - Create .env file template with necessary variables\n   - Configure env_file directive in docker-compose.yml\n   - Add environment-specific variables directly in compose file\n   - Document required variables\n\n4. Add docker-compose.override.yml for development-specific settings:\n   - Enable hot-reloading for frontend\n   - Configure development-specific commands\n   - Add debugging ports and tools\n\n5. Testing approach:\n   - Run docker-compose config to validate configuration\n   - Test complete environment with docker-compose up\n   - Verify all services start in correct order\n   - Test network connectivity between services",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 3,
+          "title": "Implement Development Scripts and Documentation",
+          "description": "Create setup scripts, helper utilities, and documentation to streamline the development workflow with Docker.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Create development helper scripts:\n   - Write shell script for initial setup (setup.sh)\n   - Create script for database seeding/migrations\n   - Add utility for container log viewing\n   - Implement script for executing commands in specific containers\n   - Add reset/cleanup script for development environment\n\n2. Implement VS Code Dev Containers integration:\n   - Create .devcontainer/devcontainer.json configuration\n   - Configure recommended extensions\n   - Set up container-specific settings\n   - Add post-create commands for environment setup\n\n3. Create comprehensive README documentation:\n   - Document environment requirements\n   - Include step-by-step setup instructions\n   - Add troubleshooting section for common issues\n   - Document environment variables\n   - Explain container architecture and relationships\n   - Add commands for common development tasks\n\n4. Implement architecture compatibility testing:\n   - Create script to verify compatibility with ARM64/x86_64\n   - Document architecture-specific considerations\n   - Add fallback options for problematic services\n\n5. Testing approach:\n   - Verify all scripts work as expected\n   - Test documentation by following setup steps on a clean system\n   - Validate VS Code integration\n   - Test on different host architectures if possible",
+          "status": "pending",
+          "parentTaskId": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Implement PostgreSQL Database with Vector Extensions",
+      "description": "Set up PostgreSQL database with pgvector and Apache AGE extensions, create data models and migration scripts.",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Configure PostgreSQL container with pgvector for vector storage and Apache AGE for graph relationships. Define SQLAlchemy ORM models for User, Document, Chunk, Query, and Response entities. Create Alembic migration scripts for schema management. Implement database connection pooling and configuration. Set up indexes for vector similarity search optimization. Address any ARM64 compatibility issues identified during Docker setup.",
+      "testStrategy": "Run migrations and verify schema creation. Test vector operations with sample data. Validate query performance with execution plans. Ensure proper index creation. Test connection pooling under load conditions."
+    },
+    {
+      "id": 3,
+      "title": "Create FastAPI Application Structure",
+      "description": "Set up the FastAPI application with basic structure, route configuration, and health endpoint.",
+      "status": "done",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Initialize FastAPI application with appropriate middleware configuration. Implement project structure following best practices with routers, controllers, services, and models. Create Pydantic schemas for request/response validation. Set up dependency injection system. Implement health check endpoint that verifies database connectivity. Configure CORS middleware for frontend communication. Set up automatic OpenAPI documentation generation.",
+      "testStrategy": "Test health endpoint functionality. Verify OpenAPI documentation generation. Validate CORS configuration with test requests. Run basic load tests to ensure proper response times. Check error handling for common failure scenarios."
+    },
+    {
+      "id": 4,
+      "title": "Implement Document Ingestion API",
+      "description": "Create API endpoint for document upload, processing, and embedding generation.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "high",
+      "details": "Implement '/ingest' endpoint that accepts document uploads. Create document processing pipeline that handles text extraction, chunking, and metadata preservation. Integrate with embedding generation service to create vector representations of text chunks. Store document metadata, chunks, and embeddings in the PostgreSQL database using the defined data models. Implement basic validation and error handling for document processing.",
+      "testStrategy": "Test document upload with various file formats. Verify proper chunking of documents. Validate embedding generation and storage. Test error handling for malformed documents. Measure processing time for various document sizes."
+    },
+    {
+      "id": 5,
+      "title": "Implement LightRAG Service Integration",
+      "description": "Integrate the LightRAG framework for retrieval augmented generation capabilities.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "high",
+      "details": "Implement LightRAG service as a core component for RAG processing. Configure it to use PostgreSQL for vector storage. Set up the text ingestion workflow to work with the document processing pipeline. Implement support for multiple search modes (local, global, hybrid, naive, mix). Create service interfaces for query processing that can be used by API endpoints. Implement caching mechanisms to reduce redundant LLM calls and optimize performance.",
+      "testStrategy": "Test each search mode with sample queries. Validate retrieval relevance against known document contents. Measure query performance and optimize as needed. Test caching effectiveness with repeated queries. Verify proper integration with PostgreSQL vector storage."
+    },
+    {
+      "id": 6,
+      "title": "Implement Vector Search API",
+      "description": "Create API endpoint for semantic search using vector embeddings.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        5
+      ],
+      "priority": "medium",
+      "details": "Implement '/search' endpoint that performs vector similarity search. Create service layer that interfaces with pgvector for efficient similarity queries. Support filtering by document metadata. Implement pagination for search results. Optimize query performance through proper indexing and query construction. Support different search modes provided by LightRAG. Return relevant document chunks with metadata and similarity scores.",
+      "testStrategy": "Test search functionality with various queries. Validate result relevance against expected outcomes. Measure search performance with different result set sizes. Test pagination functionality. Verify proper integration with pgvector extension."
+    },
+    {
+      "id": 7,
+      "title": "Implement LLM-Enhanced Query API",
+      "description": "Create API endpoint for LLM-enhanced question answering using retrieved context.",
+      "status": "pending",
+      "dependencies": [
+        5,
+        6
+      ],
+      "priority": "medium",
+      "details": "Implement '/query' endpoint that combines vector search with LLM processing. Create service for LLM integration with configurable providers (OpenAI, Anthropic). Implement prompt construction that effectively combines user queries with retrieved context. Generate responses with source attribution for transparency. Implement error handling for LLM service failures. Create flexible provider system to switch between LLM services based on availability or cost considerations.",
+      "testStrategy": "Test query responses against known document content. Validate source attribution accuracy. Test with various query complexities. Measure response times and optimize. Test provider switching functionality. Verify error handling when LLM services are unavailable."
+    },
+    {
+      "id": 8,
+      "title": "Setup React Frontend Application",
+      "description": "Create the React-based web interface with basic structure and API integration.",
+      "status": "done",
+      "dependencies": [
+        3
+      ],
+      "priority": "medium",
+      "details": "Initialize React application with Material-UI for component styling. Implement component-based architecture for reusability. Set up state management using React Context API. Create responsive layouts for mobile compatibility. Implement Axios for API communication. Set up routing with React Router. Create service layer for API interactions. Implement basic error handling and loading states.",
+      "testStrategy": "Verify component rendering across different screen sizes. Test navigation between routes. Validate API service layer with mock endpoints. Test responsive design on mobile devices. Verify proper error and loading state handling."
+    },
+    {
+      "id": 9,
+      "title": "Implement Document Upload and Query UI",
+      "description": "Create frontend interfaces for document upload and query submission.",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "medium",
+      "details": "Implement document upload interface with drag-and-drop functionality and progress indication. Create query interface with input field and submission controls. Implement document management view for uploaded documents. Design and implement results display component with source attribution. Create error handling and user feedback mechanisms. Implement responsive design elements for mobile compatibility.",
+      "testStrategy": "Test document upload with various file types and sizes. Validate query submission and response handling. Test UI responsiveness on different devices. Verify proper error message display. Test accessibility compliance with screen readers."
+    },
+    {
+      "id": 10,
+      "title": "Connect Frontend to API and Implement Results Visualization",
+      "description": "Integrate frontend with backend APIs and create visualization for query results.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        6,
+        7,
+        9
+      ],
+      "priority": "low",
+      "details": "Connect document upload interface to '/ingest' API endpoint. Integrate query interface with '/query' endpoint. Implement results visualization that displays LLM-generated responses with source attribution. Create highlighting for source references in original documents. Implement error handling for API communication failures. Add loading indicators for asynchronous operations. Create feedback mechanism for result quality assessment.",
+      "testStrategy": "Test end-to-end workflow from document upload to query results. Validate source attribution display. Test with various document types and queries. Verify error handling during API failures. Test performance with large result sets. Gather user feedback on visualization clarity."
+    }
+  ],
+  "metadata": {
+    "projectName": "EmbedIQ RAG System Implementation",
+    "totalTasks": 10,
+    "sourceFile": "scripts/PRD.txt",
+    "generatedAt": "2023-11-03"
+  }
+}

@@ -1,0 +1,315 @@
+<context>
+# Overview  
+EmbedIQ is a cloud-based RAG (Retrieval Augmented Generation) system that leverages high-quality embedding search and LLM context-based answers. The platform serves both developers through comprehensive API endpoints and end users via an intuitive web interface. EmbedIQ solves the problem of information overload and context loss when using AI systems by grounding LLM responses in relevant, specific context from user-provided documents.
+
+# Core Features  
+## Document Ingestion and Embedding Generation
+- Accepts document uploads and processes them into embeddings
+- Stores embeddings in PostgreSQL with pgvector for efficient vector search
+- Preserves document metadata and relationships for improved context retrieval
+- Critical for building the knowledge base that powers all other features
+
+## Vector Search and Context Retrieval
+- Performs high-performance semantic search using embedding similarity
+- Retrieves the most relevant document chunks based on user queries
+- Supports multiple search modes (local, global, hybrid, naive, mix)
+- Forms the foundation of accurate, context-aware responses
+
+## LLM-Enhanced Responses
+- Combines retrieved context with user queries to generate accurate responses
+- Provides source attribution for transparency and trust
+- Maintains context fidelity between source materials and responses
+- Delivers the primary value proposition through AI-augmented knowledge access
+
+## Developer API
+- Offers comprehensive API endpoints for integration into applications
+- Includes authentication and rate limiting for security and fair usage
+- Provides detailed documentation through OpenAPI/Swagger
+- Enables third-party developers to leverage RAG capabilities in their products
+
+## Web Interface
+- Presents an intuitive UI for direct end-user interaction
+- Offers document upload, querying, and results visualization
+- Implements responsive design for mobile accessibility
+- Makes advanced AI capabilities accessible to non-technical users
+
+# User Experience  
+## Developer Persona
+- Technical users seeking to integrate RAG capabilities into existing applications
+- Values clear documentation, reliable performance, and simple integration
+- Prefers programmatic access through well-designed APIs
+- Key flows: API key acquisition, documentation reference, endpoint integration
+
+## End User Persona
+- Knowledge workers needing to extract insights from large document collections
+- Values accuracy, speed, and transparency in AI-generated responses
+- Prefers direct interaction through a graphical interface
+- Key flows: document upload, query submission, results review with source verification
+
+## UI/UX Considerations
+- Clean, minimalist interface that emphasizes content over controls
+- Progressive disclosure of technical details for different user technical levels
+- Source attribution for building trust in AI-generated responses
+- Mobile responsiveness for access across devices
+</context>
+<PRD>
+# Technical Architecture  
+## System Components
+- **Frontend Application**: React-based web interface with Material-UI
+  - Component-based architecture for reusability
+  - State management using React Context API
+  - Responsive design for mobile compatibility
+  - Axios for API communication
+
+- **API Layer**: FastAPI application providing RESTful endpoints
+  - Request validation with Pydantic
+  - Authentication middleware with JWT
+  - Rate limiting and usage tracking
+  - Automatic OpenAPI documentation
+
+- **Core RAG Processing**: LightRAG-based retrieval and generation
+  - Document ingestion pipeline
+  - Embedding generation service
+  - Vector search implementation
+  - LLM prompt construction and response generation
+
+- **Database**: PostgreSQL with extensions
+  - pgvector for vector storage and similarity search
+  - Apache AGE for graph relationships
+  - SQLAlchemy ORM for data access
+  - Alembic for migrations
+
+- **Containerization**: Docker-based deployment
+  - Individual containers for each service
+  - Docker Compose for local development
+  - Kubernetes-compatible (optional for production)
+
+## Data Models
+- **User**: Authentication and permissions
+- **Document**: Metadata for uploaded documents
+- **Chunk**: Document subdivisions with embeddings
+- **Query**: User-submitted questions with metadata
+- **Response**: Generated answers with source references
+
+## APIs and Integrations
+- **Internal APIs**:
+  - `/ingest`: Document processing and embedding
+  - `/search`: Vector similarity search
+  - `/query`: LLM-enhanced question answering
+  - `/health`: Service health monitoring
+
+- **External Integrations**:
+  - LLM Providers (OpenAI, Anthropic)
+  - Embedding Services
+  - Authentication Providers (optional)
+
+## Infrastructure Requirements
+- PostgreSQL database with pgvector and Apache AGE extensions
+- Python 3.10+ runtime environment
+- Node.js 18+ for frontend development
+- Docker and Docker Compose
+- ARM64 and x86_64 architecture support
+
+# Development Roadmap  
+## Phase 1: MVP Development
+- **Core API Implementation**
+  - FastAPI application structure
+  - Health endpoint
+  - Document ingestion endpoint
+  - Vector search endpoint
+  - Basic query endpoint
+  - API documentation
+
+- **Database Integration**
+  - PostgreSQL container setup
+  - pgvector and Apache AGE extensions
+  - SQLAlchemy models and schemas
+  - Migration scripts
+  - Fix ARM64 compatibility issues
+
+- **LightRAG Integration**
+  - LightRAG service implementation
+  - PostgreSQL storage configuration
+  - Text ingestion workflow
+  - Multiple search modes support
+  - Query processing
+
+- **Basic Frontend**
+  - React application setup
+  - Navigation and routing
+  - Upload interface
+  - Query interface
+  - Results display
+  - API integration
+
+- **Development Environment**
+  - Docker configuration
+  - Docker Compose setup
+  - Local development workflow
+  - Test data generation
+
+## Phase 2: Enhancement
+- **Authentication and Authorization**
+  - User registration and login
+  - JWT token management
+  - Role-based access control
+  - API key generation for developers
+
+- **Advanced Document Processing**
+  - Multiple document format support
+  - Chunking optimization
+  - Metadata extraction
+  - Batch processing
+
+- **Search Enhancements**
+  - Filters and facets
+  - Relevance tuning
+  - Search history
+  - Suggested queries
+
+- **User Experience Improvements**
+  - Enhanced results visualization
+  - Source highlighting
+  - Feedback mechanisms
+  - Saved queries
+
+- **Performance Optimization**
+  - Caching strategies
+  - Query optimization
+  - Embedding model selection
+  - Resource utilization improvements
+
+## Phase 3: Production Readiness
+- **Monitoring and Logging**
+  - Prometheus integration
+  - Grafana dashboards
+  - OpenTelemetry implementation
+  - Error tracking
+
+- **Security Enhancements**
+  - Security audit
+  - Data encryption
+  - Access controls review
+  - GDPR compliance
+
+- **Scalability Implementation**
+  - Horizontal scaling
+  - Load balancing
+  - Connection pooling
+  - Resource limits configuration
+
+- **Advanced LLM Features**
+  - Model switching
+  - Parameter customization
+  - Prompt templating
+  - Response evaluation
+
+- **Developer Experience**
+  - SDK generation
+  - Comprehensive documentation
+  - Integration examples
+  - Developer portal
+
+# Logical Dependency Chain
+## Foundation Components
+1. Docker containerization setup
+2. PostgreSQL with vector extensions
+3. FastAPI application structure
+4. Core data models
+5. LightRAG service integration
+
+## Initial Frontend Development
+1. React application scaffold
+2. Component library setup
+3. Page routing
+4. UI layout and design
+5. API client services
+
+## Core Functionality Chain
+1. Database initialization and migration
+2. Document ingestion API
+3. Text chunking and embedding generation
+4. Vector storage in PostgreSQL
+5. Basic vector search implementation
+6. LLM integration for query responses
+7. Frontend-API connection
+
+## Enhanced Features Chain
+1. Authentication system
+2. Document management features
+3. Advanced search capabilities
+4. Results visualization improvements
+5. User preferences and history
+
+## Production Readiness Chain
+1. Monitoring and logging implementation
+2. Performance optimization
+3. Security hardening
+4. Scalability testing and implementation
+5. Documentation completion
+
+# Risks and Mitigations  
+## Technical Challenges
+- **Risk**: PostgreSQL with vector extensions compatibility issues on ARM64 architecture
+  - **Mitigation**: Test alternative PostgreSQL images or build custom image for ARM64
+  - **Mitigation**: Create a development workflow that works across architectures
+
+- **Risk**: LLM integration complexity and cost management
+  - **Mitigation**: Implement a flexible provider system to switch between LLM services
+  - **Mitigation**: Create caching mechanisms to reduce redundant LLM calls
+
+- **Risk**: Vector search performance at scale
+  - **Mitigation**: Implement proper indexing and query optimization
+  - **Mitigation**: Design a tiered storage approach for frequently vs. rarely accessed embeddings
+
+## MVP Scope Management
+- **Risk**: Feature creep extending timeline to first usable version
+  - **Mitigation**: Strictly define MVP features based on core value proposition
+  - **Mitigation**: Create clear acceptance criteria for each feature
+
+- **Risk**: Underestimating complexity of RAG implementation
+  - **Mitigation**: Start with a simpler implementation and iteratively enhance
+  - **Mitigation**: Leverage existing libraries and frameworks like LightRAG
+
+## Resource Constraints
+- **Risk**: Development velocity constraints with limited resources
+  - **Mitigation**: Prioritize features based on value and dependency chain
+  - **Mitigation**: Use existing components and libraries where possible
+
+- **Risk**: LLM API costs limiting development and testing
+  - **Mitigation**: Implement mock LLM services for development and testing
+  - **Mitigation**: Set up monitoring and limits for API usage
+
+# Appendix  
+## Related Research
+- LightRAG Framework: https://github.com/HKUDS/LightRAG
+- RAG (Retrieval Augmented Generation) methodologies
+- Vector database performance benchmarks
+- Embedding model selection studies
+
+## Technical Specifications
+- FastAPI performance targets
+- PostgreSQL with pgvector configuration recommendations
+- Frontend performance metrics
+- Docker resource specifications
+- Security requirements checklist
+
+## Architecture Diagram
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│                 │      │                 │      │                 │
+│  Frontend App   │◄────►│    API Layer    │◄────►│  Core RAG       │
+│  (React)        │      │   (FastAPI)     │      │  Processing     │
+│                 │      │                 │      │                 │
+└─────────────────┘      └────────┬────────┘      └────────┬────────┘
+                                  │                        │
+                                  │                        │
+                                  ▼                        ▼
+                         ┌─────────────────┐      ┌─────────────────┐
+                         │                 │      │                 │
+                         │   PostgreSQL    │◄────►│  LightRAG       │
+                         │   Database      │      │  Framework      │
+                         │                 │      │                 │
+                         └─────────────────┘      └─────────────────┘
+```
+</PRD> 

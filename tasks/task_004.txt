@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: Implement Document Ingestion API
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: Create API endpoint for document upload, processing, and embedding generation.
+# Details:
+Implement '/ingest' endpoint that accepts document uploads. Create document processing pipeline that handles text extraction, chunking, and metadata preservation. Integrate with embedding generation service to create vector representations of text chunks. Store document metadata, chunks, and embeddings in the PostgreSQL database using the defined data models. Implement basic validation and error handling for document processing.
+
+# Test Strategy:
+Test document upload with various file formats. Verify proper chunking of documents. Validate embedding generation and storage. Test error handling for malformed documents. Measure processing time for various document sizes.

@@ -83,4 +83,17 @@ temp/
 vectordb/data/
 
 # Local development files
-**/local_* 
+**/local_*
+
+# Added by Claude Task Master
+logs
+dev-debug.log
+# Dependency directories
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific

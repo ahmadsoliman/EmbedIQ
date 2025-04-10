@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Implement LLM-Enhanced Query API
+# Status: pending
+# Dependencies: 5, 6
+# Priority: medium
+# Description: Create API endpoint for LLM-enhanced question answering using retrieved context.
+# Details:
+Implement '/query' endpoint that combines vector search with LLM processing. Create service for LLM integration with configurable providers (OpenAI, Anthropic). Implement prompt construction that effectively combines user queries with retrieved context. Generate responses with source attribution for transparency. Implement error handling for LLM service failures. Create flexible provider system to switch between LLM services based on availability or cost considerations.
+
+# Test Strategy:
+Test query responses against known document content. Validate source attribution accuracy. Test with various query complexities. Measure response times and optimize. Test provider switching functionality. Verify error handling when LLM services are unavailable.

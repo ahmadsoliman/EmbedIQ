@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement Vector Search API
+# Status: pending
+# Dependencies: 4, 5
+# Priority: medium
+# Description: Create API endpoint for semantic search using vector embeddings.
+# Details:
+Implement '/search' endpoint that performs vector similarity search. Create service layer that interfaces with pgvector for efficient similarity queries. Support filtering by document metadata. Implement pagination for search results. Optimize query performance through proper indexing and query construction. Support different search modes provided by LightRAG. Return relevant document chunks with metadata and similarity scores.
+
+# Test Strategy:
+Test search functionality with various queries. Validate result relevance against expected outcomes. Measure search performance with different result set sizes. Test pagination functionality. Verify proper integration with pgvector extension.

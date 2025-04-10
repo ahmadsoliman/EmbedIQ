@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Implement LightRAG Service Integration
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: Integrate the LightRAG framework for retrieval augmented generation capabilities.
+# Details:
+Implement LightRAG service as a core component for RAG processing. Configure it to use PostgreSQL for vector storage. Set up the text ingestion workflow to work with the document processing pipeline. Implement support for multiple search modes (local, global, hybrid, naive, mix). Create service interfaces for query processing that can be used by API endpoints. Implement caching mechanisms to reduce redundant LLM calls and optimize performance.
+
+# Test Strategy:
+Test each search mode with sample queries. Validate retrieval relevance against known document contents. Measure query performance and optimize as needed. Test caching effectiveness with repeated queries. Verify proper integration with PostgreSQL vector storage.
