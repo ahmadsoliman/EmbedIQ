@@ -47,8 +47,7 @@ services:
 
   # Database service - PostgreSQL with pgvector and Apache AGE for RAG
   db:
-    image: shangor/postgres-for-rag:v1.0
-    platform: linux/amd64
+    image: eldoc92/postgres-rag-arm64:latest
     ports:
       - '5432:5432'
     networks:

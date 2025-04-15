@@ -4,190 +4,99 @@ Test script to verify LightRAG is working correctly.
 """
 
 import asyncio
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-import traceback
 import time
+from dotenv import load_dotenv
 
-# Add api directory to path for imports
-api_path = str(Path(__file__).parent.parent / "api")
-sys.path.append(api_path)
-print(f"Added API path to sys.path: {api_path}")
+# Load environment variables before imports
+load_dotenv()
 
-# Check if running in docker
-in_docker = os.path.exists("/.dockerenv")
-if in_docker:
-    # When in Docker, /app is already the WORKDIR, so we need to adjust paths
-    print("Running in Docker container")
-    sys.path.append("/app")
+# Configure base directory and Python path
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API_DIR = os.path.join(ROOT_DIR, "api")
 
-# If running locally, use localhost for database connection
-if "--local" in sys.argv or "-l" in sys.argv:
-    print("Using localhost for database connection")
-    os.environ["DATABASE_URL"] = "postgresql://postgres:postgres@localhost:5432/embediq"
-else:
-    # Use Docker service name
-    os.environ["DATABASE_URL"] = os.environ.get(
-        "DATABASE_URL", "postgresql://postgres:postgres@db:5432/embediq"
-    )
+# Add root directory to Python path if not already there
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+# Add API directory to Python path if not already there
+if API_DIR not in sys.path:
+    sys.path.insert(0, API_DIR)
 
-os.environ["LIGHTRAG_WORKING_DIR"] = os.environ.get("LIGHTRAG_WORKING_DIR", "./data")
-os.environ["AGE_GRAPH_NAME"] = os.environ.get("AGE_GRAPH_NAME", "embediq")
+# Configure logging
+logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Try to import required dependencies
-required_packages = [
-    "lightrag",
-    "sentence_transformers",
-    "faiss",
-    "psycopg2",
-    "numpy",
-    "loguru",
-]
+# Set up working directory
+WORKING_DIR = os.path.join(ROOT_DIR, "data", "embediq")
+os.makedirs(WORKING_DIR, exist_ok=True)
 
-missing_packages = []
-for package in required_packages:
-    try:
-        __import__(package)
-        print(f"✓ {package} is installed")
-    except ImportError:
-        missing_packages.append(package)
-        print(f"✗ {package} is missing")
+# Set environment variables for PostgreSQL and AGE
+os.environ.setdefault("POSTGRES_HOST", "db")
+os.environ.setdefault("POSTGRES_PORT", "5432")
+os.environ.setdefault("POSTGRES_USER", "postgres")
+os.environ.setdefault("POSTGRES_PASSWORD", "postgres")
+os.environ.setdefault("POSTGRES_DATABASE", "embediq")
+os.environ.setdefault("AGE_GRAPH_NAME", "embediq")
 
-if missing_packages:
-    print("\nPlease install missing packages:")
-    print(f"pip install {' '.join(missing_packages)}")
-    sys.exit(1)
+logger.info(f"Python path: {sys.path}")
+logger.info(f"Working directory: {WORKING_DIR}")
+logger.info(f"Database host: {os.environ['POSTGRES_HOST']}")
 
-# Now try to import LightRAG service
+# Import LightRAG service
 try:
     from app.services.lightrag_service import LightRAGService
 
-    print("✓ Successfully imported LightRAGService")
+    logger.info("✓ Successfully imported LightRAG service")
 except ImportError as e:
-    print(f"Error importing LightRAG service: {e}")
-    print("\nPossible fixes:")
-    print("1. Make sure you're running from the project root: cd /path/to/rag-sass")
-    print("2. Check that all dependencies are installed")
-    print("3. Verify the app/services/lightrag_service.py file exists")
-    print("4. If running in Docker, check the container file structure")
-    print("\nInstall all dependencies with:")
-    print(
-        "pip install lightrag faiss-cpu sentence-transformers pgvector psycopg2-binary"
-    )
+    logger.error(f"Error importing LightRAG service: {e}")
+    logger.error(f"Current working directory: {os.getcwd()}")
+    logger.error(f"Current PYTHONPATH: {sys.path}")
     sys.exit(1)
 
 
 async def test_lightrag():
-    """Test LightRAG functionality."""
-    print("\n========================================")
-    print("    LightRAG PostgreSQL Integration Test")
-    print("========================================\n")
-
-    print("Database URL:", os.environ["DATABASE_URL"])
-    print("Working directory:", os.environ["LIGHTRAG_WORKING_DIR"])
-    print("Graph name:", os.environ["AGE_GRAPH_NAME"])
-
-    # Test database connection first
-    print("\nTesting database connection...")
-    try:
-        import psycopg2
-
-        db_url = os.environ["DATABASE_URL"]
-        conn = psycopg2.connect(db_url, connect_timeout=5)
-        cursor = conn.cursor()
-        cursor.execute("SELECT version();")
-        version = cursor.fetchone()
-        print(f"✓ Connected to PostgreSQL: {version[0]}")
-
-        # Check for extensions
-        cursor.execute("SELECT extname FROM pg_extension;")
-        extensions = [ext[0] for ext in cursor.fetchall()]
-        print(f"Installed extensions: {', '.join(extensions)}")
-
-        if "vector" not in extensions:
-            print("⚠ pgvector extension is not installed!")
-        if "age" not in extensions:
-            print("⚠ Apache AGE extension is not installed!")
-
-        cursor.close()
-        conn.close()
-    except Exception as e:
-        print(f"✗ Database connection error: {e}")
-        print("Make sure PostgreSQL is running and accessible.")
-
-        if "Connection refused" in str(e):
-            if "--local" in sys.argv:
-                print("Check that PostgreSQL is running on localhost:5432")
-            else:
-                print("If running outside Docker, try with --local flag")
-        return
+    """Test LightRAG functionality with all query modes."""
+    logger.info("\n==== Testing LightRAG Functionality ====")
 
     try:
-        print("\nInitializing LightRAG service...")
-        start_time = time.time()
+        # Initialize RAG instance
         rag_service = await LightRAGService.get_instance()
-        init_time = time.time() - start_time
-        print(f"✓ LightRAG service initialized in {init_time:.2f}s")
 
-        # Test ingestion
-        print("\n=== Testing Text Ingestion ===")
-        text = """
-        LightRAG is a framework for building Retrieval-Augmented Generation (RAG) applications.
-        It supports multiple retrieval modes including local, global, hybrid, naive, and mix.
-        This text is for testing the ingestion and querying capabilities of LightRAG.
+        # Test data for ingestion
+        test_text = """
+        Charles Dickens was an English writer and social critic. He created some of
+        the world's best-known fictional characters and is regarded by many as the
+        greatest novelist of the Victorian era. His works enjoyed unprecedented 
+        popularity during his lifetime, and by the 20th century, critics and scholars
+        had recognized him as a literary genius.
         """
 
-        # Rename metadata to doc_metadata to avoid SQLAlchemy conflict
-        doc_metadata = {
-            "title": "LightRAG Introduction",
-            "source": "Test Script",
-            "author": "Test User",
-        }
-
-        print(f"Ingesting test text with metadata: {doc_metadata}")
-        result = await rag_service.ingest_text(text, metadata=doc_metadata)
-        print(f"Ingestion result: {result}")
-
-        if result.get("status") == "error":
-            print(f"✗ Error during ingestion: {result.get('message')}")
+        logger.info("\n==== Testing Document Ingestion ====")
+        # async with rag_service.db_lock:
+        result = await rag_service.ingest_text(test_text)
+        if result["status"] != "success":
+            logger.error(f"Error during ingestion: {result}")
             return
-        else:
-            print("✓ Text ingested successfully")
+        logger.info("✓ Document ingested successfully")
 
-        # Test querying in different modes
-        print("\n=== Testing Queries ===")
-        query = "What is LightRAG?"
+        # Test all query modes
+        query = "What are the main themes in this text?"
 
-        for mode in ["naive", "local", "global", "hybrid", "mix"]:
-            try:
-                print(f"\nTesting {mode} mode query: '{query}'")
-                start_time = time.time()
-                result = await rag_service.query(query, mode=mode, top_k=3)
-                query_time = time.time() - start_time
+        for mode in ["naive", "local", "global", "hybrid"]:
+            logger.info(f"\n**** Start {mode.capitalize()} Query ****")
+            start_time = time.time()
+            result = await rag_service.query(query, mode=mode)
+            logger.info(f"Result: {result.get('result', 'No result')}")
+            logger.info(
+                f"{mode.capitalize()} Query Time: {time.time() - start_time} seconds"
+            )
 
-                if result.get("status") == "error":
-                    print(f"✗ Error in {mode} mode query: {result.get('message')}")
-                else:
-                    print(f"✓ {mode} mode query completed in {query_time:.2f}s")
-                    print(f"Result: {result.get('result', 'No result')}")
-            except Exception as e:
-                print(f"✗ Exception in {mode} mode query: {e}")
-
-        print("\n✅ LightRAG test completed successfully!")
     except Exception as e:
-        print(f"\n❌ ERROR: {e}")
-        print("\nDetailed traceback:")
-        traceback.print_exc()
-        print("\nTroubleshooting tips:")
-        print("1. Make sure the PostgreSQL database is running:")
-        print("   docker ps | grep postgres")
-        print("2. Check that the right extensions are installed:")
-        print("   pgvector and Apache AGE")
-        print("3. Verify DATABASE_URL environment variable:")
-        print(f"   {os.environ['DATABASE_URL']}")
-        print("4. If running outside Docker, use --local flag")
+        logger.error(f"Error during test execution: {e}", exc_info=True)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ class DocumentBase(BaseModel):
     title: str = Field(..., description="Document title", min_length=1, max_length=255)
     source: Optional[str] = Field(None, description="Source of the document")
     author: Optional[str] = Field(None, description="Author of the document")
-    metadata: Optional[Dict[str, Any]] = Field(
+    doc_metadata: Optional[Dict[str, Any]] = Field(
         None, description="Additional document metadata"
     )
 
@@ -48,7 +48,7 @@ class DocumentChunkBase(BaseModel):
 
     chunk_index: int = Field(..., description="Index of the chunk within the document")
     chunk_text: str = Field(..., description="Text content of the chunk")
-    metadata: Optional[Dict[str, Any]] = Field(
+    doc_metadata: Optional[Dict[str, Any]] = Field(
         None, description="Additional chunk metadata"
     )
 
@@ -97,7 +97,7 @@ class SearchResult(BaseModel):
     chunk_id: int
     chunk_text: str
     score: float
-    metadata: Optional[Dict[str, Any]] = None
+    doc_metadata: Optional[Dict[str, Any]] = None
 
 
 class SearchResponse(BaseModel):

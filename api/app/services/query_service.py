@@ -117,10 +117,10 @@ def process_query(
                 "title": result.document_title,
                 "id": str(result.document_id),
             }
-            if result.metadata and "source" in result.metadata:
-                source_info["source"] = result.metadata["source"]
-            if result.metadata and "author" in result.metadata:
-                source_info["author"] = result.metadata["author"]
+            if result.doc_metadata and "source" in result.doc_metadata:
+                source_info["source"] = result.doc_metadata["source"]
+            if result.doc_metadata and "author" in result.doc_metadata:
+                source_info["author"] = result.doc_metadata["author"]
 
             # Only add unique sources
             if source_info not in sources:

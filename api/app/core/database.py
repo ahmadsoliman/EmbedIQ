@@ -1,51 +1,62 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import declarative_base, sessionmaker
 import os
 from loguru import logger
+from contextlib import asynccontextmanager
 
 # Get database connection string from environment
-# Default to a local PostgreSQL connection for development
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://postgres:postgres@db:5432/embediq"
+).replace("postgresql://", "postgresql+asyncpg://")
+
+# Create async SQLAlchemy engine
+engine = create_async_engine(DATABASE_URL, echo=False)
+
+# Create async session factory
+AsyncSessionLocal = sessionmaker(
+    class_=AsyncSession, autocommit=False, autoflush=False, bind=engine
 )
-
-# Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
-
-# Create session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create base class for models
 Base = declarative_base()
 
 
-# Dependency to get db session
-def get_db():
+@asynccontextmanager
+async def get_session():
     """
-    Dependency for FastAPI routes to get database session.
-    Creates a new database session for each request and closes it when the request is complete.
+    Async context manager for database sessions.
+    Creates a new async database session and closes it when done.
     """
-    db = SessionLocal()
+    session = AsyncSessionLocal()
     try:
-        yield db
+        yield session
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
     finally:
-        db.close()
+        await session.close()
+
+
+# Dependency to get db session
+async def get_db():
+    """
+    Async dependency for FastAPI routes to get database session.
+    """
+    async with get_session() as session:
+        yield session
 
 
 # Function to initialize db
-def init_db():
+async def init_db():
     """
     Initialize database tables if they don't exist yet.
-    In production, we would use Alembic migrations instead.
     """
     try:
-        # Import models to ensure they're registered with Base
-        # This will be updated as models are created
-        # from app.models import your_models_here
-
-        logger.info("Creating database tables...")
-        Base.metadata.create_all(bind=engine)
-        logger.info("Database tables created successfully.")
+        async with engine.begin() as conn:
+            logger.info("Creating database tables...")
+            await conn.run_sync(Base.metadata.create_all)
+            logger.info("Database tables created successfully.")
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
+        raise

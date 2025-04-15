@@ -180,7 +180,7 @@ function DocsPage() {
   "source": "Optional Source",
   "author": "Optional Author",
   "content": "Full document content...",
-  "metadata": {
+  "doc_metadata": {
     "optional": "metadata",
     "customField": "value"
   }
@@ -207,7 +207,7 @@ function DocsPage() {
   "author": "Optional Author",
   "created_at": "2023-08-15T14:32:21Z",
   "updated_at": "2023-08-15T14:32:21Z",
-  "metadata": {
+  "doc_metadata": {
     "optional": "metadata",
     "customField": "value"
   }
@@ -286,7 +286,7 @@ function DocsPage() {
       "chunk_id": 456,
       "chunk_text": "Relevant text from the document...",
       "score": 0.92,
-      "metadata": {
+      "doc_metadata": {
         "source": "Document Source",
         "author": "Document Author"
       }

@@ -1,9 +1,12 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from typing import List, Tuple, Dict, Any, Optional
 from loguru import logger
+import asyncio
 
 from app.models.document import Document, DocumentChunk
 from app.schemas.document import SearchResult
+from app.core.database import get_db, get_session
 
 
 def generate_embedding(text: str) -> bytes:
@@ -76,13 +79,39 @@ def search_documents(
                 chunk_id=chunk.id,
                 chunk_text=chunk.chunk_text,
                 score=0.5,  # Placeholder score
-                metadata={
+                doc_metadata={
                     "source": document.source,
                     "author": document.author,
                     "chunk_index": chunk.chunk_index,
-                    **chunk.metadata,
+                    **chunk.chunk_metadata,
                 },
             )
         )
 
     return search_results, total
+
+
+class SearchService:
+    def __init__(self):
+        self.db_lock = asyncio.Lock()
+
+    async def index_document(self, documentId: int) -> Dict[str, Any]:
+        """Index a document with thread-safe database access."""
+        async with self.db_lock:
+            async with get_session() as session:
+                document = await session.get(Document, documentId)
+                document.is_indexed = True
+                session.add(document)
+                await session.commit()
+                await session.refresh(document)
+            return {"status": "success", "document_id": documentId}
+
+    async def search_documents(self, query: str, limit: int = 10) -> List[Document]:
+        """Search documents with thread-safe database access."""
+        async with self.db_lock:
+            async with get_session() as session:
+                stmt = select(Document).filter(Document.is_indexed == True).limit(limit)
+                result = await session.execute(stmt)
+                return result.scalars().all()
+
+    # Add any additional search methods here

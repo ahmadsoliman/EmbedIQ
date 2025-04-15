@@ -37,23 +37,23 @@ async def ingest_document(document: DocumentCreate, db: Session = Depends(get_db
 
     try:
         # Create the document in the database
-        db_document = create_document(db=db, document=document)
+        db_documentId = create_document(db=db, document=document)
 
         # Also ingest into LightRAG if content is available
         if document.content:
             rag_service = await LightRAGService.get_instance()
             doc_metadata = {
                 "title": document.title,
-                "document_id": db_document.id,
+                "document_id": db_documentId,
                 "source": document.source,
             }
-            await rag_service.ingest_text(document.content, metadata=doc_metadata)
+            await rag_service.ingest_text(document.content, doc_metadata=doc_metadata)
 
         # Calculate processing time
         process_time = time.time() - start_time
         logger.info(f"Document ingestion completed in {process_time:.2f}s")
 
-        return db_document
+        return {"id": db_documentId}
     except Exception as e:
         logger.error(f"Error ingesting document: {e}")
         raise HTTPException(
@@ -87,7 +87,7 @@ async def ingest_text(text: str = Form(...), metadata_json: Optional[str] = Form
 
         # Ingest text into LightRAG
         rag_service = await LightRAGService.get_instance()
-        result = await rag_service.ingest_text(text, metadata=doc_metadata)
+        result = await rag_service.ingest_text(text, doc_metadata=doc_metadata)
 
         if result.get("status") == "error":
             raise HTTPException(
